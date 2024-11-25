@@ -1,8 +1,47 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, redirect, useNavigate } from "react-router-dom";
 import { ReactComponent as ArrowRightIcon } from "../assets/svg/keyboardArrowRightIcon.svg";
 import visibilityIcon from "../assets/svg/visibilityIcon.svg";
+import { app } from "../firebase.config";
+import { getFirestore } from "firebase/firestore";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  downloadURL,
+  getDownloadURL,
+} from "firebase/storage";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { setDoc, doc, serverTimestamp } from "firebase/firestore";
 function SignUp() {
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const auth = getAuth(app);
+      const db = getFirestore();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      updateProfile(auth.currentUser, {
+        displayName: name,
+      });
+      const fromdataCopy = { ...formData };
+      delete fromdataCopy.password;
+      fromdataCopy.timestamp = serverTimestamp();
+      await setDoc(doc(db, "users", user.uid), fromdataCopy);
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -10,6 +49,7 @@ function SignUp() {
     email: "",
     password: "",
   });
+  const db = getFirestore();
   const { name, email, password } = formData;
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -24,7 +64,7 @@ function SignUp() {
           <p className="pageHeader">Welcome Back!</p>
         </header>
         <main>
-          <form>
+          <form onSubmit={onSubmit}>
             <input
               type="text"
               id="name"

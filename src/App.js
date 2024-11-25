@@ -7,6 +7,8 @@ import Offers from "./pages/Offers";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import SignUp from "./pages/SignUp";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -19,6 +21,7 @@ function App() {
         <Route exect path="/signup" element={<SignUp />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <ToastContainer />
       {/* Navbar */}
       <Navbar />
     </Router>
